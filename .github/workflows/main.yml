@@ -1,0 +1,26 @@
+name: CI of Java code
+on:
+  push:
+    branches:
+      - master
+jobs:
+  BuildJob:
+   runs-on: ubuntu-latest
+   steps:
+    - name: Clone the repo 
+      uses: actions/checkout@v4
+    - name: Setup Java on Runner and maven
+      uses: actions/setup-java@v4
+      with:
+       distribution: 'temurin'
+       java-version: '11'
+       cache: 'maven'
+    - name: Test the java code 
+      run: mvn test 
+    - name: Sonar Scan the code 
+      run:  mvn -B verify sonar:sonar -Dsonar.projectKey=demo1orgtoday_mavenproject -Dsonar.organization=demo1orgtoday -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
+      env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     
+    - name: Build the code 
+      run: mvn package
